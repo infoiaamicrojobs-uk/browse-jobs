@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Browse Jobs</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2300BFA5'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#00BFA5; --brand-d:#00A88F; --brand-dd:#00796B;
+  --ink:#10312c; --muted:#5f736f; --line:#dfe8e6; --bg:#f6f9f8; --card:#ffffff; --soft:#eef3f2;
+  --chip:#dff5f1; --chip-ink:#00695c; --danger:#d93636;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:780px;margin:0 auto;padding:0 20px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,var(--brand-dd) 0%,var(--brand) 100%);color:#fff;padding:44px 0 72px;border-radius:0 0 44px 44px}
+.hero h1{margin:0 0 24px;font-size:clamp(34px,6vw,52px);line-height:1.05;letter-spacing:-.03em;font-weight:800}
+.search{background:#fff;border-radius:24px;padding:12px;display:flex;flex-wrap:wrap;gap:10px;box-shadow:0 18px 40px rgba(0,60,50,.25);color:var(--ink)}
+.search input,.search select{background:var(--soft);border:0;border-radius:14px;padding:16px 18px;font-size:17px;outline:none}
+.search input{flex:1 1 100%}
+.search select{flex:1 1 180px;min-width:0}
+.search input:focus,.search select:focus{box-shadow:0 0 0 2px var(--brand)}
+.btn{border:0;border-radius:14px;padding:14px 20px;font-weight:700;font-size:16px;cursor:pointer;background:var(--brand);color:#fff;transition:background .15s,transform .05s}
+.btn:hover{background:var(--brand-d)} .btn:active{transform:translateY(1px)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--soft)}
+.btn.danger{background:#fff;color:var(--danger);border:1px solid #f3c9c9}
+.btn.danger:hover{background:#fdf1f1}
+.btn.sm{padding:10px 16px;font-size:15px;border-radius:12px}
+.btn[disabled]{opacity:.6;cursor:default}
+
+/* Toolbar */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:18px;font-size:14px;color:var(--muted)}
+.bar .sp{flex:1}
+.bar .who{font-weight:600}
+.link{background:none;border:0;padding:6px 10px;border-radius:10px;color:var(--brand-dd);font-weight:700;cursor:pointer}
+.link:hover{background:var(--chip)}
+
+.count{margin:26px 0 14px;font-weight:700;color:var(--muted)}
+
+/* Cards */
+.grid{display:grid;gap:18px;padding-bottom:60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 14px rgba(16,49,44,.05)}
+.head{display:flex;gap:14px;align-items:flex-start}
+.avatar{flex:none;width:54px;height:54px;border-radius:16px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:800;font-size:22px}
+.card h3{margin:0;font-size:22px;line-height:1.2;letter-spacing:-.01em;word-break:break-word}
+.meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;color:var(--muted);font-size:15px}
+.chip{background:var(--chip);color:var(--chip-ink);padding:6px 14px;border-radius:999px;font-weight:700;font-size:14px}
+.salary{color:var(--muted);font-size:15px}
+.snippet{color:var(--muted);line-height:1.6;margin:0;font-size:16px;word-break:break-word}
+.by{border-top:1px dashed var(--line);padding-top:12px;color:var(--muted);font-size:15px;word-break:break-word}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:50px 0}
+a.btn{text-decoration:none;display:inline-block}
+
+/* Modal */
+.ov{position:fixed;inset:0;background:rgba(8,30,26,.55);display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow:auto;z-index:50}
+.modal{background:#fff;border-radius:26px;width:100%;max-width:560px;padding:26px;margin:auto;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 16px;font-size:24px;letter-spacing:-.01em}
+.close{float:right;background:var(--soft);border:0;border-radius:12px;width:38px;height:38px;font-size:20px;cursor:pointer;line-height:1}
+label.f{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+.in{width:100%;background:var(--soft);border:1px solid transparent;border-radius:14px;padding:13px 15px;font-size:16px;outline:none}
+.in:focus{border-color:var(--brand);background:#fff}
+textarea.in{min-height:140px;resize:vertical}
+.row{display:grid;gap:12px}
+@media(min-width:520px){.row{grid-template-columns:1fr 1fr}}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.err{color:var(--danger);font-weight:600;font-size:14px;margin-top:12px;min-height:18px}
+.full{white-space:pre-wrap;line-height:1.7;color:#27413c;margin:16px 0;word-break:break-word}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:14px;font-weight:600;z-index:80;max-width:90vw}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Find work. Find talent.</h1>
+    <div class="search">
+      <input id="q" type="search" placeholder="Search jobs" autocomplete="off">
+      <select id="cat" aria-label="Category"></select>
+      <button class="btn" id="post">Post a job</button>
+    </div>
+    <div class="bar" id="bar" hidden>
+      <span class="who" id="who"></span>
+      <span class="sp"></span>
+      <button class="link" id="bk">Download backup</button>
+      <button class="link" id="rs">Restore backup</button>
+      <button class="link" id="out">Sign out</button>
+      <input type="file" id="file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script>
+(function(){
+'use strict';
+var CATS=['Web & IT','Design & Creative','Writing & Translation','Marketing','Video & Animation','Admin & Support','Other'];
+var TYPES=['Full-time','Part-time','Contract','Freelance','Internship'];
+var jobs=[], session=null, loadFailed=false;
+try{ session=JSON.parse(localStorage.getItem('jb_session')||'null'); }catch(e){}
+
+function $(id){return document.getElementById(id)}
+function el(tag,props){
+  var n=document.createElement(tag), kids=Array.prototype.slice.call(arguments,2);
+  Object.keys(props||{}).forEach(function(k){
+    var v=props[k];
+    if(k==='class') n.className=v;
+    else if(k.indexOf('on')===0) n.addEventListener(k.slice(2),v);
+    else if(v===true) n.setAttribute(k,'');
+    else if(v!==false&&v!=null) n.setAttribute(k,v);
+  });
+  (function add(list){list.forEach(function(c){
+    if(c==null||c===false) return;
+    if(Array.isArray(c)) return add(c);
+    n.appendChild(c.nodeType?c:document.createTextNode(String(c)));
+  })})(kids);
+  return n;
+}
+function toast(msg){
+  var t=el('div',{class:'toast'},msg); document.body.appendChild(t);
+  setTimeout(function(){t.remove()},2800);
+}
+
+/* ---------- API ---------- */
+function api(path,opts){
+  opts=opts||{};
+  var h={'content-type':'application/json'};
+  if(session&&session.token) h.authorization='Bearer '+session.token;
+  return fetch(path,{method:opts.method||'GET',headers:h,body:opts.body?JSON.stringify(opts.body):undefined})
+    .then(function(r){
+      return r.json().catch(function(){return {}}).then(function(d){
+        if(r.status===401&&session&&path!=='/api/login'){ signOut(true); }
+        if(!r.ok) throw new Error(d.error||'Something went wrong. Please try again.');
+        return d;
+      });
+    });
+}
+function loadJobs(){
+  return api('/api/jobs').then(function(d){jobs=d.jobs||[];loadFailed=false;render()})
+    .catch(function(){loadFailed=true;render()});
+}
+
+/* ---------- Session ---------- */
+function setSession(s){
+  session=s;
+  if(s) localStorage.setItem('jb_session',JSON.stringify(s)); else localStorage.removeItem('jb_session');
+  renderBar(); render();
+}
+function signOut(silent){ setSession(null); if(!silent) toast('Signed out'); }
+function renderBar(){
+  var bar=$('bar');
+  if(session){ bar.hidden=false; $('who').textContent='Signed in as '+(session.role==='admin'?'Admin':'Manager'); $('rs').hidden=session.role!=='admin'; }
+  else bar.hidden=true;
+}
+
+/* ---------- Modal ---------- */
+function openModal(title,body){
+  var ov=el('div',{class:'ov'});
+  var m=el('div',{class:'modal',role:'dialog','aria-modal':'true'},
+    el('button',{class:'close','aria-label':'Close',onclick:close},'\u00d7'),
+    el('h2',null,title), body);
+  ov.appendChild(m);
+  ov.addEventListener('mousedown',function(e){ if(e.target===ov) close(); });
+  function key(e){ if(e.key==='Escape') close(); }
+  function close(){ ov.remove(); document.removeEventListener('keydown',key); document.body.style.overflow=''; }
+  document.addEventListener('keydown',key);
+  document.body.style.overflow='hidden';
+  document.body.appendChild(ov);
+  var first=m.querySelector('input,textarea,select'); if(first) first.focus();
+  return close;
+}
+
+/* ---------- Sign in ---------- */
+function openLogin(after){
+  var u=el('input',{class:'in',type:'text',autocomplete:'username',required:true});
+  var p=el('input',{class:'in',type:'password',autocomplete:'current-password',required:true});
+  var err=el('div',{class:'err'});
+  var btn=el('button',{class:'btn',type:'submit',style:'width:100%;margin-top:18px'},'Sign in');
+  var close;
+  var form=el('form',{onsubmit:function(e){
+    e.preventDefault(); err.textContent=''; btn.disabled=true;
+    api('/api/login',{method:'POST',body:{username:u.value.trim(),password:p.value}})
+      .then(function(d){ setSession({token:d.token,role:d.role}); close(); if(after) after(); })
+      .catch(function(x){ err.textContent=x.message; btn.disabled=false; });
+  }},
+    el('label',{class:'f'},'Username'),u,
+    el('label',{class:'f'},'Password'),p,
+    err,btn);
+  close=openModal('Sign in',form);
+}
+
+/* ---------- Job form (create / edit) ---------- */
+function openForm(job){
+  job=job||{};
+  var f={
+    title:el('input',{class:'in',type:'text',maxlength:'120',required:true,value:job.title||'',placeholder:'e.g. Senior Frontend Developer'}),
+    category:el('select',{class:'in'},CATS.map(function(c){return el('option',{value:c,selected:c===job.category},c)})),
+    type:el('select',{class:'in'},TYPES.map(function(c){return el('option',{value:c,selected:c===job.type},c)})),
+    location:el('input',{class:'in',type:'text',maxlength:'80',value:job.location||'',placeholder:'e.g. Dhaka or Remote'}),
+    salary:el('input',{class:'in',type:'text',maxlength:'60',value:job.salary||'',placeholder:'e.g. BDT 80,000 / month'}),
+    description:el('textarea',{class:'in',maxlength:'5000',required:true,placeholder:'Describe the work, requirements and how to get started.'}),
+    applyUrl:el('input',{class:'in',type:'url',maxlength:'500',value:job.applyUrl||'',placeholder:'https://forms.gle/...'}),
+    company:el('input',{class:'in',type:'text',maxlength:'80',required:true,value:job.company||'',placeholder:'Company or author name'})
+  };
+  f.description.value=job.description||'';
+  var err=el('div',{class:'err'});
+  var btn=el('button',{class:'btn',type:'submit',style:'width:100%;margin-top:18px'},job.id?'Save changes':'Post job');
+  var close;
+  var form=el('form',{onsubmit:function(e){
+    e.preventDefault(); err.textContent=''; btn.disabled=true;
+    var body={};
+    Object.keys(f).forEach(function(k){body[k]=f[k].value});
+    api(job.id?'/api/jobs/'+encodeURIComponent(job.id):'/api/jobs',{method:job.id?'PUT':'POST',body:body})
+      .then(function(){ close(); toast(job.id?'Job updated':'Job posted'); return loadJobs(); })
+      .catch(function(x){ err.textContent=x.message; btn.disabled=false; });
+  }},
+    el('label',{class:'f'},'Job title'),f.title,
+    el('div',{class:'row'},
+      el('div',null,el('label',{class:'f'},'Category'),f.category),
+      el('div',null,el('label',{class:'f'},'Job type'),f.type)),
+    el('div',{class:'row'},
+      el('div',null,el('label',{class:'f'},'Location'),f.location),
+      el('div',null,el('label',{class:'f'},'Salary'),f.salary)),
+    el('label',{class:'f'},'Description'),f.description,
+    el('label',{class:'f'},'Apply link (Google Form link)'),f.applyUrl,
+    el('div',{class:'hint'},'Paste your Google Form link. The Apply now button will open it.'),
+    el('label',{class:'f'},'Company or author name'),f.company,
+    err,btn);
+  close=openModal(job.id?'Edit job':'Post a job',form);
+}
+
+/* ---------- Job details ---------- */
+function applyBtn(j){
+  return j.applyUrl?el('a',{class:'btn sm',href:j.applyUrl,target:'_blank',rel:'noopener noreferrer'},'Apply now'):null;
+}
+function metaRow(j){
+  return el('div',{class:'meta'},
+    el('span',{class:'chip'},j.category),
+    el('span',null,j.type),
+    j.location?el('span',null,j.location):null);
+}
+function openDetails(j){
+  openModal(j.title,el('div',null,
+    metaRow(j),
+    j.salary?el('div',{class:'salary',style:'margin-top:10px'},j.salary):null,
+    el('div',{class:'full'},j.description),
+    el('div',{class:'by'},j.company),
+    el('div',{class:'actions',style:'margin-top:16px'},applyBtn(j))));
+}
+
+/* ---------- Render ---------- */
+function snippet(t){ t=String(t).replace(/\s+/g,' ').trim(); return t.length>110?t.slice(0,110).trim()+'\u2026':t; }
+function render(){
+  var q=$('q').value.trim().toLowerCase(), c=$('cat').value;
+  var list=jobs.filter(function(j){
+    if(c&&j.category!==c) return false;
+    if(!q) return true;
+    return (j.title+' '+j.company+' '+j.description+' '+j.location+' '+j.category).toLowerCase().indexOf(q)>-1;
+  });
+  $('count').textContent=loadFailed?'':list.length+(list.length===1?' job':' jobs');
+  var g=$('grid'); g.textContent='';
+  if(loadFailed){ g.appendChild(el('div',{class:'empty'},'Could not load jobs. Please refresh the page.')); return; }
+  if(!list.length){ g.appendChild(el('div',{class:'empty'},'No jobs found.')); return; }
+  list.forEach(function(j){
+    g.appendChild(el('article',{class:'card'},
+      el('div',{class:'head'},
+        el('div',{class:'avatar'},(j.company||'?').trim().charAt(0).toUpperCase()),
+        el('div',null,el('h3',null,j.title))),
+      metaRow(j),
+      j.salary?el('div',{class:'salary'},j.salary):null,
+      el('p',{class:'snippet'},snippet(j.description)),
+      el('div',{class:'by'},j.company),
+      el('div',{class:'actions'},
+        el('button',{class:'btn ghost sm',onclick:function(){openDetails(j)}},'Read more'),
+        applyBtn(j),
+        session?el('button',{class:'btn ghost sm',onclick:function(){openForm(j)}},'Edit'):null,
+        session?el('button',{class:'btn danger sm',onclick:function(){ del(j); }},'Delete'):null)));
+  });
+}
+function del(j){
+  if(!confirm('Delete "'+j.title+'"?')) return;
+  api('/api/jobs/'+encodeURIComponent(j.id),{method:'DELETE'})
+    .then(function(){ toast('Job deleted'); return loadJobs(); })
+    .catch(function(x){ toast(x.message); });
+}
+
+/* ---------- Backup ---------- */
+function downloadBackup(){
+  fetch('/api/backup',{headers:{authorization:'Bearer '+session.token}})
+    .then(function(r){ if(!r.ok) throw new Error('Backup failed. Please sign in again.'); return r.blob(); })
+    .then(function(b){
+      var a=document.createElement('a'), d=new Date().toISOString().slice(0,10);
+      a.href=URL.createObjectURL(b); a.download='browse-jobs-backup-'+d+'.json';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+    }).catch(function(x){ toast(x.message); });
+}
+function restoreBackup(file){
+  if(!file) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    var data;
+    try{ data=JSON.parse(rd.result); }catch(e){ toast('This file is not a valid backup.'); return; }
+    if(!confirm('Restore this backup? All current jobs will be replaced.')) return;
+    api('/api/backup',{method:'POST',body:data})
+      .then(function(d){ toast('Restored '+d.count+(d.count===1?' job':' jobs')); return loadJobs(); })
+      .catch(function(x){ toast(x.message); });
+  };
+  rd.readAsText(file);
+}
+
+/* ---------- Init ---------- */
+$('cat').appendChild(el('option',{value:''},'All categories'));
+CATS.forEach(function(c){ $('cat').appendChild(el('option',{value:c},c)); });
+$('q').addEventListener('input',render);
+$('cat').addEventListener('change',render);
+$('post').addEventListener('click',function(){ session?openForm():openLogin(function(){openForm()}); });
+$('out').addEventListener('click',function(){signOut()});
+$('bk').addEventListener('click',downloadBackup);
+$('rs').addEventListener('click',function(){$('file').value='';$('file').click()});
+$('file').addEventListener('change',function(){restoreBackup(this.files[0])});
+renderBar(); loadJobs();
+})();
+</script>
+</body>
+</html>
