@@ -1,5 +1,5 @@
 // Shared helpers for the Browse Jobs API (Cloudflare Pages Functions)
-export const CATEGORIES = ['Web & IT','Design & Creative','Writing & Translation','Marketing','Video & Animation','Admin & Support','Other'];
+export const DEFAULT_CATEGORIES = ['Web & IT','Design & Creative','Writing & Translation','Marketing','Video & Animation','Admin & Support','Other'];
 export const TYPES = ['Full-time','Part-time','Contract','Freelance','Internship'];
 
 const enc = new TextEncoder();
@@ -83,6 +83,19 @@ export async function readJobs(env) {
     return [];
   }
 }
+
+// Built-in categories + categories added by admin/manager + any category already used by a job (e.g. after a restore).
+export async function readCategories(env) {
+  let custom = [];
+  try { custom = JSON.parse((await env.JOBS.get('categories')) || '[]'); } catch (e) {}
+  if (!Array.isArray(custom)) custom = [];
+  const used = (await readJobs(env)).map((j) => j.category);
+  const out = DEFAULT_CATEGORIES.filter((c) => c !== 'Other');
+  [...custom, ...used].forEach((c) => { if (c && !out.includes(c) && c !== 'Other') out.push(c); });
+  out.push('Other');
+  return out;
+}
+export const writeCustomCategories = (env, list) => env.JOBS.put('categories', JSON.stringify(list));
 export const writeJobs = (env, jobs) => env.JOBS.put('jobs', JSON.stringify(jobs));
 
 const clip = (v, n) => String(v == null ? '' : v).trim().slice(0, n);
@@ -113,10 +126,12 @@ export function cleanJob(input) {
       title,
       company,
       description,
-      category: CATEGORIES.includes(input.category) ? input.category : 'Other',
+      category: clip(input.category, 40) || 'Other',
       type: TYPES.includes(input.type) ? input.type : 'Full-time',
       location: clip(input.location, 80),
       salary: clip(input.salary, 60),
+      salaryCurrency: ['BDT', 'USD'].includes(input.salaryCurrency) ? input.salaryCurrency : '',
+      rating: Math.max(0, Math.min(5, Math.round(Number(input.rating)) || 0)),
       applyUrl,
     },
   };
